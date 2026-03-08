@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://pickwise.ai/sitemap.xml
