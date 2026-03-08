@@ -85,7 +85,7 @@ export default function Home() {
             <span style={{ fontSize: '10px', background: C.green, color: '#000', padding: '2px 6px', borderRadius: '4px', fontWeight: '800', letterSpacing: '0.05em' }}>AI</span>
           </Link>
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            {[['Picks', '/picks/today'], ['NFL', '/picks/nfl'], ['NBA', '/picks/nba'], ['MLB', '/picks/mlb'], ['NHL', '/picks/nhl'], ['Sportsbooks', '/sportsbooks'], ['Blog', '/blog']].map(([label, href]) => (
+            {[['Picks', '/picks/today'], ['NFL', '/picks/nfl'], ['NBA', '/picks/nba'], ['MLB', '/picks/mlb'], ['NHL', '/picks/nhl'], ['Sportsbooks', '/sportsbooks'], ['Blog', '/blog'], ['Pricing', '/pricing']].map(([label, href]) => (
               <Link key={href} href={href} style={{ padding: '6px 12px', fontSize: '13px', fontWeight: '600', color: C.muted, borderRadius: '6px' }}>{label}</Link>
             ))}
             <Link href="/sportsbooks" style={{ marginLeft: '8px', background: C.green, color: '#000', padding: '7px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '800' }}>Get Bonus →</Link>
@@ -134,6 +134,15 @@ export default function Home() {
 
             {/* Left: Picks feed */}
             <div>
+              {/* Paywall teaser banner */}
+              <div style={{ background: 'linear-gradient(135deg, rgba(0,255,136,0.07), rgba(0,255,136,0.02))', border: '1px solid rgba(0,255,136,0.2)', borderRadius: '12px', padding: '16px 20px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: C.green, marginBottom: '2px' }}>🔒 2 of {todaysPicks.length} picks shown — unlock all</div>
+                  <div style={{ fontSize: '12px', color: C.muted }}>Full confidence scores + premium analysis + email alerts</div>
+                </div>
+                <Link href="/pricing" style={{ background: C.green, color: '#000', padding: '8px 18px', borderRadius: '7px', fontWeight: '800', fontSize: '13px', whiteSpace: 'nowrap' }}>See Pricing →</Link>
+              </div>
+
               {/* Sport filter */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', color: C.muted, fontWeight: '600', marginRight: '4px' }}>TODAY:</span>
