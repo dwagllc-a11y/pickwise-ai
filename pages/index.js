@@ -15,14 +15,6 @@ const C = {
   accent: '#0ea5e9',
 }
 
-const todaysPicks = [
-  { sport: 'NBA', time: '7:10 PM ET', matchup: 'Celtics vs 76ers', pick: 'Celtics -4.5', confidence: 84, odds: '-110', result: null, analysis: 'Boston dominant at home, Philly missing key contributors. Celtics cover comfortably.' },
-  { sport: 'NBA', time: '9:30 PM ET', matchup: 'Lakers vs Warriors', pick: 'Over 224.5', confidence: 78, odds: '-108', result: null, analysis: 'Both offenses clicking. Two top-10 pace teams. Total has gone over in 7 of last 9 matchups.' },
-  { sport: 'NHL', time: '7:00 PM ET', matchup: 'Rangers vs Bruins', pick: 'Rangers ML', confidence: 71, odds: '+115', result: null, analysis: 'Rangers goaltending elite this stretch. Bruins on back-to-back. Value on the ML here.' },
-  { sport: 'MLB', time: '6:40 PM ET', matchup: 'Yankees vs Red Sox', pick: 'Yankees -1.5', confidence: 67, odds: '+145', result: null, analysis: 'Cole on the hill, Yankees bullpen rested. Red Sox lineup struggling vs RHP all month.' },
-  { sport: 'NFL', time: 'Sun 4:25 PM', matchup: 'Chiefs vs Raiders', pick: 'Chiefs -7', confidence: 82, odds: '-115', result: null, analysis: 'Mahomes at home, Raiders banged up on OL. Chiefs have covered 6 of last 8 as home favorites.' },
-]
-
 const record = { wins: 847, losses: 423, pushes: 31, roi: '+18.4%', streak: 'W7' }
 
 const affiliates = [
@@ -54,7 +46,17 @@ function ConfidenceMeter({ value }) {
 export default function Home() {
   const [activeSport, setActiveSport] = useState('all')
   const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const [todaysPicks, setTodaysPicks] = useState([])
+  const [picksLoading, setPicksLoading] = useState(true)
+
+  useEffect(() => {
+    setMounted(true)
+    fetch('/api/picks-engine')
+      .then(r => r.json())
+      .then(data => { if (data.picks) setTodaysPicks(data.picks) })
+      .catch(() => {})
+      .finally(() => setPicksLoading(false))
+  }, [])
 
   const filtered = activeSport === 'all' ? todaysPicks : todaysPicks.filter(p => p.sport.toLowerCase() === activeSport)
 
@@ -137,7 +139,7 @@ export default function Home() {
               {/* Paywall teaser banner */}
               <div style={{ background: 'linear-gradient(135deg, rgba(0,255,136,0.07), rgba(0,255,136,0.02))', border: '1px solid rgba(0,255,136,0.2)', borderRadius: '12px', padding: '16px 20px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: C.green, marginBottom: '2px' }}>🔒 2 of {todaysPicks.length} picks shown — unlock all</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: C.green, marginBottom: '2px' }}>🔒 2 of {picksLoading ? '...' : todaysPicks.length} picks shown — unlock all</div>
                   <div style={{ fontSize: '12px', color: C.muted }}>Full confidence scores + premium analysis + email alerts</div>
                 </div>
                 <Link href="/pricing" style={{ background: C.green, color: '#000', padding: '8px 18px', borderRadius: '7px', fontWeight: '800', fontSize: '13px', whiteSpace: 'nowrap' }}>See Pricing →</Link>
@@ -155,7 +157,20 @@ export default function Home() {
 
               {/* Picks cards */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-                {filtered.map((pick, i) => (
+                {picksLoading ? (
+                  [1,2,3].map(i => (
+                    <div key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ height: '12px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', width: '35%', animation: 'pulse 1.5s infinite' }} />
+                      <div style={{ height: '18px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', width: '55%', animation: 'pulse 1.5s infinite' }} />
+                      <div style={{ height: '11px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', width: '80%', animation: 'pulse 1.5s infinite' }} />
+                    </div>
+                  ))
+                ) : filtered.length === 0 ? (
+                  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '32px', textAlign: 'center', color: C.muted }}>
+                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>📋</div>
+                    No games on the slate right now. Check back soon.
+                  </div>
+                ) : filtered.map((pick, i) => (
                   <div key={i} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '20px', position: 'relative', overflow: 'hidden' }}>
                     {/* Sport tag */}
                     <div style={{ position: 'absolute', top: 0, left: 0, background: pick.sport === 'NFL' ? '#ff6b35' : pick.sport === 'NBA' ? '#c9082a' : pick.sport === 'MLB' ? '#003087' : '#00509e', width: '4px', height: '100%' }} />
@@ -177,6 +192,11 @@ export default function Home() {
                         <span style={{ fontSize: '11px', color: C.muted, fontWeight: '600' }}>AI CONFIDENCE</span>
                         <div style={{ flex: 1 }}><ConfidenceMeter value={pick.confidence} /></div>
                       </div>
+                      {pick.bettingTip && (
+                        <div style={{ marginTop: '10px', background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.1)', borderRadius: '6px', padding: '8px 10px', fontSize: '12px', color: '#7a9a7a' }}>
+                          💡 {pick.bettingTip}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
